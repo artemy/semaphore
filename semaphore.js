@@ -2,17 +2,18 @@
 // Requires: npm i node-hid
 //
 // Usage:
-//   node ./semaphore.js <led> off
-//   node ./semaphore.js <led> on
-//   node ./semaphore.js <led> blink [half_period_ms]
-//   node ./semaphore.js solo <color> on
-//   node ./semaphore.js solo <color> blink [half_period_ms]
-//   node ./semaphore.js status
-//   node ./semaphore.js boot
+//   node ./semaphore.js [--soft|-s] <led> off
+//   node ./semaphore.js [--soft|-s] <led> on
+//   node ./semaphore.js [--soft|-s] <led> blink [half_period_ms]
+//   node ./semaphore.js [--soft|-s] solo <color> on
+//   node ./semaphore.js [--soft|-s] solo <color> blink [half_period_ms]
+//   node ./semaphore.js [--soft|-s] status
+//   node ./semaphore.js [--soft|-s] boot
 //
 //   <led>:   red | yellow | green | all
 //   <color>: red | yellow | green       (solo turns off the other two)
 //   blink half-period: 20..10000 ms (default 500)
+//   --soft, -s: silently exit 0 on device-connectivity errors (for hooks).
 
 const HID = require("node-hid");
 
@@ -47,6 +48,7 @@ function usage(msg) {
       "  <led>:   red | yellow | green | all",
       "  <color>: red | yellow | green   (solo turns off the other two)",
       "  blink half-period: 20..10000 ms (default 500)",
+      "  --soft, -s: silently exit 0 on device-connectivity errors (for hooks)",
     ].join("\n"),
   );
   process.exit(2);
@@ -90,20 +92,17 @@ function parseArgs(argv) {
 }
 
 function openDevice() {
-  let match;
-  try {
-    match = HID.devices().find(
-      (d) => d.vendorId === VID && d.productId === PID,
+  const match = HID.devices().find(
+    (d) => d.vendorId === VID && d.productId === PID,
+  );
+  if (!match) {
+    const err = new Error(
+      `device not connected (VID 0x${VID.toString(16)} PID 0x${PID.toString(16)})`,
     );
-  } catch {
-    return null;
+    err.code = "ENODEVICE";
+    throw err;
   }
-  if (!match) return null;
-  try {
-    return new HID.HID(match.path);
-  } catch {
-    return null;
-  }
+  return new HID.HID(match.path);
 }
 
 function buildReport({ cmd, idx, mode, period }) {
@@ -147,21 +146,42 @@ function sendOne(device, parsed) {
 }
 
 async function main() {
-  const commands = parseArgs(process.argv.slice(2));
-  const device = openDevice();
-  if (!device) return; // Device not connected — soft no-op (exit 0).
+  const argv = process.argv.slice(2);
+  let soft = false;
+  for (let i = argv.length - 1; i >= 0; i--) {
+    if (argv[i] === "--soft" || argv[i] === "-s") {
+      soft = true;
+      argv.splice(i, 1);
+    }
+  }
 
-  device.on("error", () => {
+  const commands = parseArgs(argv);
+
+  let device;
+  try {
+    device = openDevice();
+  } catch (e) {
+    if (soft) return;
+    console.error(`error: ${e.message}`);
+    process.exit(1);
+  }
+
+  device.on("error", (e) => {
     try { device.close(); } catch {}
-    process.exit(0);
+    if (soft) process.exit(0);
+    console.error(`error: ${e.message ?? e}`);
+    process.exit(1);
   });
 
   try {
     let last;
     for (const cmd of commands) last = await sendOne(device, cmd);
-    printState(last);
-  } catch {
-    // Device disappeared mid-run, etc. — stay quiet.
+    if (!soft) printState(last);
+  } catch (e) {
+    if (!soft) {
+      console.error(`error: ${e.message ?? e}`);
+      process.exitCode = 1;
+    }
   } finally {
     try { device.close(); } catch {}
   }

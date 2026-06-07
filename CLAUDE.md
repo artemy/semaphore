@@ -28,13 +28,15 @@ No build, lint, or test scripts are wired up (`npm test` is a placeholder).
   - The leading `0x00` is a report-ID prefix the OS requires even though the device's HID descriptor declares no report ID. Do not "clean it up."
 - GET reply layout (parsed by `printState`): byte 0 status, then 3-byte triples per LED `(mode, period_lo, period_hi)` in green/yellow/red order.
 - `solo <color>` is implemented client-side as two writes: first an `all off`, then set the chosen LED. `solo` rejects `all` and only accepts `on|blink` (not `off` — use `all off` for that).
-- `sendOne` waits up to 1s for a `data` event from the device per write and rejects otherwise. Any new command must produce a reply within that window or the write will appear to fail silently (errors are swallowed — see below).
-- Device-absent and mid-run errors are deliberately swallowed (exit 0, no output). This is intentional so the CLI can be wired into hooks that fire whether or not the device is plugged in — preserve this behavior.
+- `sendOne` waits up to 1s for a `data` event from the device per write and rejects otherwise. Any new command must produce a reply within that window or the write fails (loud by default, silent under `--soft`).
+- Default behavior: device-absent, open failures, and mid-run errors print `error: ...` to stderr and exit 1. Pass `--soft` (or `-s`) anywhere on the command line to silently swallow all device-connectivity errors and exit 0 with no output — this mode is for hooks (see below). Preserve this two-mode behavior when editing error handling.
 - `examples/control.html` is a standalone WebHID page implementing the same protocol; keep it in sync if the report format changes.
 
 ## Hook integration
 
 `hooks.json` at the repo root is a Claude Code hooks config that drives the device from session lifecycle events. It's not auto-loaded — copy or symlink into `.claude/settings.json` (or merge) to activate. The hook commands invoke the bare `semaphore` bin, so the package must be globally installed (`npm install -g .` or `npm link`) before the hooks will work.
+
+Every command in `hooks.json` uses `--soft`. This is load-bearing: it keeps the LED best-effort when the device is unplugged, and it suppresses stdout so the `SessionStart` and `UserPromptSubmit` hooks (whose stdout Claude Code ingests into the model's context) don't inject device telemetry into the conversation. If you add a new hook, use `--soft`.
 
 Current mapping and its intended visual language (preserve this semantic when editing):
 
