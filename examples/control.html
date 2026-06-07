@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>semaphore control</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
+  fieldset { margin-bottom: 1rem; }
+  button { padding: .4rem .8rem; margin: .2rem; }
+  .leds { display: flex; gap: 1rem; margin-top: .5rem; }
+  .led { padding: .5rem 1rem; border: 1px solid #888; border-radius: 4px; min-width: 6rem; }
+  .led.on    { background: #ffd54f; }
+  .led.blink { background: repeating-linear-gradient(45deg,#ffd54f,#ffd54f 6px,#fff 6px,#fff 12px); }
+  pre { background: #f4f4f4; padding: .5rem; max-height: 12rem; overflow: auto; }
+</style>
+</head>
+<body>
+<h1>semaphore</h1>
+<p>Requires a Chromium-based browser with WebHID. Click <b>Connect</b> and pick the <code>semaphore</code> device.</p>
+
+<button id="connect">Connect</button>
+<span id="status">disconnected</span>
+
+<fieldset>
+  <legend>Per LED</legend>
+  <label>LED:
+    <select id="idx">
+      <option value="0">0 (GP10)</option>
+      <option value="1">1 (GP11)</option>
+      <option value="2">2 (GP12)</option>
+      <option value="255">all</option>
+    </select>
+  </label>
+  <label>Period (ms half-cycle):
+    <input id="period" type="number" min="20" max="10000" value="250" style="width:6em">
+  </label>
+  <div>
+    <button data-mode="0">Off</button>
+    <button data-mode="1">On</button>
+    <button data-mode="2">Blink</button>
+  </div>
+</fieldset>
+
+<fieldset>
+  <legend>Device</legend>
+  <button id="get">GET state</button>
+  <button id="anim">Boot animation</button>
+</fieldset>
+
+<fieldset>
+  <legend>Reported state</legend>
+  <div class="leds">
+    <div class="led" id="led0">LED 0: ?</div>
+    <div class="led" id="led1">LED 1: ?</div>
+    <div class="led" id="led2">LED 2: ?</div>
+  </div>
+  <p>Last status: <span id="last-status">—</span></p>
+</fieldset>
+
+<h3>Log</h3>
+<pre id="log"></pre>
+
+<script>
+const VID = 0x1209, PID = 0x0001;
+
+const CMD_SET = 0x01;
+const CMD_GET = 0x03;
+const CMD_BOOT_ANIM = 0x04;
+
+const MODE_NAMES = { 0: "off", 1: "on", 2: "blink" };
+
+let device = null;
+
+const $ = (id) => document.getElementById(id);
+const log = (msg) => {
+  const pre = $("log");
+  pre.textContent += msg + "\n";
+  pre.scrollTop = pre.scrollHeight;
+};
+
+async function connect() {
+  const devices = await navigator.hid.requestDevice({
+    filters: [{ vendorId: VID, productId: PID }],
+  });
+  if (devices.length === 0) return;
+  device = devices[0];
+  if (!device.opened) await device.open();
+  device.addEventListener("inputreport", onInputReport);
+  $("status").textContent = `connected: ${device.productName}`;
+  log(`opened ${device.productName}`);
+  // Pull initial state.
+  await sendCommand(CMD_GET);
+}
+
+function buildOut(cmd, idx = 0, mode = 0, period = 0) {
+  const out = new Uint8Array(8);
+  out[0] = cmd;
+  out[1] = idx;
+  out[2] = mode;
+  out[3] = period & 0xff;
+  out[4] = (period >> 8) & 0xff;
+  return out;
+}
+
+async function sendCommand(cmd, idx = 0, mode = 0, period = 0) {
+  if (!device) {
+    log("not connected");
+    return;
+  }
+  const out = buildOut(cmd, idx, mode, period);
+  log(`-> ${[...out].map((b) => b.toString(16).padStart(2, "0")).join(" ")}`);
+  try {
+    // No report IDs in the descriptor → reportId = 0.
+    await device.sendReport(0, out);
+  } catch (e) {
+    log(`send failed: ${e.message}`);
+  }
+}
+
+function onInputReport(event) {
+  const d = event.data; // DataView, 12 bytes
+  const bytes = new Uint8Array(d.buffer, d.byteOffset, d.byteLength);
+  log(`<- ${[...bytes].map((b) => b.toString(16).padStart(2, "0")).join(" ")}`);
+
+  const status = bytes[0];
+  $("last-status").textContent = status === 0 ? "OK" : `BAD (0x${status.toString(16)})`;
+
+  for (let i = 0; i < 3; i++) {
+    const off = 1 + i * 3;
+    const mode = bytes[off];
+    const period = bytes[off + 1] | (bytes[off + 2] << 8);
+    const el = $(`led${i}`);
+    el.classList.remove("on", "blink");
+    if (mode === 1) el.classList.add("on");
+    if (mode === 2) el.classList.add("blink");
+    const label = MODE_NAMES[mode] ?? `?${mode}`;
+    el.textContent =
+      mode === 2 ? `LED ${i}: blink @ ${period}ms` : `LED ${i}: ${label}`;
+  }
+}
+
+$("connect").addEventListener("click", connect);
+
+document.querySelectorAll("button[data-mode]").forEach((b) => {
+  b.addEventListener("click", () => {
+    const mode = Number(b.dataset.mode);
+    const idx = Number($("idx").value);
+    const period = mode === 2 ? Number($("period").value) : 0;
+    sendCommand(CMD_SET, idx, mode, period);
+  });
+});
+
+$("get").addEventListener("click", () => sendCommand(CMD_GET));
+$("anim").addEventListener("click", () => sendCommand(CMD_BOOT_ANIM));
+
+// Reconnect to previously-permitted device on load.
+navigator.hid?.getDevices().then(async (devs) => {
+  const d = devs.find((x) => x.vendorId === VID && x.productId === PID);
+  if (!d) return;
+  device = d;
+  if (!device.opened) await device.open();
+  device.addEventListener("inputreport", onInputReport);
+  $("status").textContent = `connected: ${device.productName}`;
+  log(`reattached to ${device.productName}`);
+});
+</script>
+</body>
+</html>
