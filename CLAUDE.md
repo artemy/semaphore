@@ -11,7 +11,10 @@ A small CLI (`semaphore.js`) that drives a USB-HID traffic-light device (VID `0x
 ```
 npm install              # installs node-hid (native build)
 node ./semaphore.js …    # see usage in semaphore.js header
+npm install -g .         # exposes the `semaphore` bin on PATH (used by hooks.json)
 ```
+
+The package exposes a `semaphore` bin (see `package.json` `bin` field). `files` is allowlisted to ship only `semaphore.js` — if you add a new runtime file, add it there too or it won't be in the published tarball. Verify with `npm pack --dry-run`.
 
 No build, lint, or test scripts are wired up (`npm test` is a placeholder).
 
@@ -31,7 +34,7 @@ No build, lint, or test scripts are wired up (`npm test` is a placeholder).
 
 ## Hook integration
 
-`hooks.json` at the repo root is a Claude Code hooks config that drives the device from session lifecycle events. It's not auto-loaded — copy or symlink into `.claude/settings.json` (or merge) to activate.
+`hooks.json` at the repo root is a Claude Code hooks config that drives the device from session lifecycle events. It's not auto-loaded — copy or symlink into `.claude/settings.json` (or merge) to activate. The hook commands invoke the bare `semaphore` bin, so the package must be globally installed (`npm install -g .` or `npm link`) before the hooks will work.
 
 Current mapping and its intended visual language (preserve this semantic when editing):
 

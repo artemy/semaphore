@@ -1,18 +1,31 @@
 {
   "name": "semaphore-cli",
   "version": "1.0.0",
-  "description": "",
-  "main": "semaphore.js",
-  "directories": {
-    "example": "examples"
+  "description": "CLI for the USB-HID traffic-light semaphore device (VID 0x1209, PID 0x0001).",
+  "bin": {
+    "semaphore": "semaphore.js"
   },
+  "files": [
+    "semaphore.js"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "hid",
+    "usb",
+    "led",
+    "traffic-light",
+    "semaphore",
+    "claude-code",
+    "hooks"
+  ],
+  "author": "Artem Makarov",
   "license": "ISC",
   "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "node-hid": "^3.3.0"
   }
