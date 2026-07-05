@@ -1,0 +1,17 @@
+{
+  "name": "semaphore",
+  "owner": { "name": "Artem Makarov" },
+  "description": "Display Claude Code status on your USB-HID semaphore.",
+  "plugins": [
+    {
+      "name": "semaphore-hooks",
+      "description": "Display Claude Code status on your USB-HID semaphore.",
+      "version": "1.0.0",
+      "author": { "name": "Artem Makarov" },
+      "homepage": "https://github.com/artemy/semaphore",
+      "license": "MIT",
+      "keywords": ["hooks", "hid", "led", "traffic-light", "semaphore", "status-light"],
+      "source": "./"
+    }
+  ]
+}
