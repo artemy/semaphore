@@ -21,7 +21,7 @@
     "hooks"
   ],
   "author": "Artem Makarov",
-  "license": "ISC",
+  "license": "MIT",
   "type": "commonjs",
   "engines": {
     "node": ">=18"
