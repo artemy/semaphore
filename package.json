@@ -24,6 +24,14 @@
   ],
   "author": "Artem Makarov",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/artemy/semaphore.git"
+  },
+  "homepage": "https://github.com/artemy/semaphore#readme",
+  "bugs": {
+    "url": "https://github.com/artemy/semaphore/issues"
+  },
   "type": "commonjs",
   "engines": {
     "node": ">=18"
