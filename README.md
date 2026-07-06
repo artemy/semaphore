@@ -2,7 +2,7 @@
 
 ![MIT License](https://img.shields.io/github/license/artemy/semaphore)
 
-🚦 CLI for a USB-HID traffic-light device that turns your desk light into a live session indicator for [Claude Code](https://claude.ai/code) and [Codex](https://github.com/openai/codex).
+🚦 CLI for a USB-HID traffic-light device that turns your desk light into a live session indicator for [Claude Code](https://claude.ai/code), [Codex](https://github.com/openai/codex), and [Opencode](https://opencode.ai).
 
 ## Features
 
@@ -11,7 +11,7 @@
 - `solo` command lights one LED and clears the other two
 - `status` query reads current device state
 - `boot` plays a startup animation
-- Claude Code and Codex hook integration — the light follows session events automatically where supported
+- Claude Code, Codex, and Opencode hook integration — the light follows session events automatically where supported
 
 ## Getting started
 
@@ -103,6 +103,19 @@ codex plugin add semaphore-hooks@semaphore
 Copy the contents of `hooks/hooks-codex.json` into your `.codex/hooks.json`.
 
 Codex hooks lifecycle is documented in [CODEX-README.md](hooks/CODEX-README.md)
+
+## Opencode
+
+#### Plugin
+
+Add this to your `opencode.json`
+```
+{
+  "plugin": ["@artemy/semaphore@latest"]
+}
+```
+
+Opencode hooks lifecycle is documented in [OPENCODE-README.md](hooks/OPENCODE-README.md)
 
 ## Built With
 
