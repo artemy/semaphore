@@ -1,0 +1,55 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "semaphore --soft solo red on"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher":  "request_user_input",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "semaphore --soft solo yellow blink"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "semaphore --soft solo red on"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "semaphore --soft solo yellow blink 500"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "semaphore --soft solo green on"
+          }
+        ]
+      }
+    ]
+  }
+}

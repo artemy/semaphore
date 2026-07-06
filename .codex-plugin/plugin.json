@@ -1,0 +1,28 @@
+{
+  "name": "semaphore-hooks",
+  "version": "1.0.0",
+  "description": "Display Codex status on your USB-HID semaphore.",
+  "author": {
+    "name": "Artem Makarov"
+  },
+  "homepage": "https://github.com/artemy/semaphore",
+  "repository": "https://github.com/artemy/semaphore",
+  "license": "MIT",
+  "keywords": [
+    "hooks",
+    "hid",
+    "led",
+    "traffic-light",
+    "semaphore",
+    "status-light",
+    "codex"
+  ],
+  "hooks": "./hooks/codex-hooks.json",
+  "interface": {
+    "displayName": "Semaphore Hooks",
+    "shortDescription": "Display Codex status on your USB-HID semaphore.",
+    "longDescription": "Display Codex lifecycle and permission status on your USB-HID semaphore.",
+    "developerName": "Artem Makarov",
+    "category": "Productivity"
+  }
+}

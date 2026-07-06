@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A small CLI (`cli.js`) that drives a USB-HID traffic-light device (VID `0x1209`, PID `0x0001`) with red/yellow/green LEDs. Each LED can be off, on, or blinking at a configurable half-period (20–10000 ms). The CLI also has a `status` query and a `boot` animation.
+A small CLI (`cli.js`) that drives a USB-HID traffic-light device (VID `0x1209`, PID `0x0001`) with red/yellow/green LEDs. Each LED can be off, on, or blinking at a configurable half-period (20–5000 ms). The CLI also has a `status` query and a `boot` animation.
 
 ## Commands
 

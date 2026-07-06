@@ -1,0 +1,20 @@
+{
+  "name": "semaphore",
+  "interface": {
+    "displayName": "Semaphore"
+  },
+  "plugins": [
+    {
+      "name": "semaphore-hooks",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 ![MIT License](https://img.shields.io/github/license/artemy/semaphore)
 
-CLI for a USB-HID traffic-light device that turns your desk light into a live session indicator for [Claude Code](https://claude.ai/code).
+🚦 CLI for a USB-HID traffic-light device that turns your desk light into a live session indicator for [Claude Code](https://claude.ai/code) and [Codex](https://github.com/openai/codex).
 
 ## Features
 
@@ -11,7 +11,7 @@ CLI for a USB-HID traffic-light device that turns your desk light into a live se
 - `solo` command lights one LED and clears the other two
 - `status` query reads current device state
 - `boot` plays a startup animation
-- Claude Code hooks integration — the light follows session events automatically
+- Claude Code and Codex hook integration — the light follows session events automatically where supported
 
 ## Getting started
 
@@ -49,7 +49,7 @@ semaphore boot
 
 - `<led>`: `red` | `yellow` | `green` | `all`
 - `<color>`: `red` | `yellow` | `green` (solo turns off the other two)
-- blink half-period: 20–10000 ms (default 500)
+- blink half-period: 20–5000 ms (default 500)
 - `--soft` / `-s`: silently exit 0 on device-connectivity errors (for hooks)
 
 ### Examples
@@ -62,18 +62,14 @@ semaphore all off            # turn everything off
 semaphore status             # read and print current device state
 ```
 
-## Claude Code hooks
 
-The CLI is designed to be driven by [Claude Code hooks](https://docs.anthropic.com/en/docs/claude-code/hooks), giving you a physical at-a-glance view of what Claude is doing:
+## Hooks installation
 
-| LED state      | Meaning                     | Hook events                         |
-|----------------|-----------------------------|-------------------------------------|
-| green solid    | Idle / waiting for input    | `SessionStart`, `Stop`              |
-| red solid      | Claude is busy              | `UserPromptSubmit`, `PostToolUse`   |
-| yellow blink   | Needs human attention       | `PermissionRequest`, `Notification` |
-| all off        | No active session           | `SessionEnd`                        |
+> ⚠️ Every hook command uses `--soft`. This keeps the LED best-effort when the device is unplugged, and suppresses stdout so hook output is not injected into the model's context.
 
-### Plugin (recommended)
+### Claude Code
+
+#### Plugin (recommended)
 
 Make sure the package is installed globally first, then run from inside Claude Code:
 
@@ -82,11 +78,31 @@ Make sure the package is installed globally first, then run from inside Claude C
 /plugin install semaphore-hooks@semaphore
 ```
 
-### Manual
+#### Manual
 
 Merge the `hooks` key from `hooks/hooks.json` into your `.claude/settings.json`.
 
-> ⚠️ Every hook command uses `--soft`. This keeps the LED best-effort when the device is unplugged, and suppresses stdout so hook output is not injected into the model's context.
+Claude Code hooks lifecycle is documented in [CLAUDE-README.md](hooks/CLAUDE-README.md)
+
+## OpenAI Codex
+
+#### Plugin (recommended)
+
+Make sure the package is installed globally first, then run from your terminal:
+
+
+```shell
+codex plugin marketplace add artemy/semaphore
+codex plugin add semaphore-hooks@semaphore
+```
+
+> ⚠️ Codex will prompt you to review the newly installed hooks after you run it next time.
+
+### Manual
+
+Copy the contents of `hooks/hooks-codex.json` into your `.codex/hooks.json`.
+
+Codex hooks lifecycle is documented in [CODEX-README.md](hooks/CODEX-README.md)
 
 ## Built With
 

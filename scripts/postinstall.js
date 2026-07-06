@@ -6,12 +6,11 @@
 if (!process.env.npm_config_global) process.exit(0);
 
 console.log(
-  [
-    "",
-    "semaphore-cli installed.",
-    "",
-    "Optional — traffic-light LED feedback for Claude Code sessions:",
-    "  /plugin marketplace add artemy/semaphore",
-    "  /plugin install semaphore-hooks@semaphore"
-  ].join("\n"),
+    [
+        "",
+        "semaphore-cli installed.",
+        "",
+        "Optional — install hooks into your AI coding tool (Claude Code, Codex)",
+        "Instructions available at https://github.com/artemy/semaphore"
+    ].join("\n"),
 );

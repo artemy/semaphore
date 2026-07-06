@@ -12,7 +12,7 @@
 //
 //   <led>:   red | yellow | green | all
 //   <color>: red | yellow | green       (solo turns off the other two)
-//   blink half-period: 20..10000 ms (default 500)
+//   blink half-period: 20..5000 ms (default 500)
 //   --soft, -s: silently exit 0 on device-connectivity errors (for hooks).
 
 const HID = require("node-hid");
@@ -32,6 +32,10 @@ const MODE_OFF = 0x00;
 const MODE_ON = 0x01;
 const MODE_BLINK = 0x02;
 
+const STATUS_OK = 0x00;
+const STATUS_UNSUPPORTED = 0x02;
+const STATUS_NAMES = { 0x00: "OK", 0x01: "BAD", 0x02: "UNSUPPORTED" };
+
 function usage(msg) {
   if (msg) console.error(`error: ${msg}\n`);
   console.error(
@@ -47,7 +51,7 @@ function usage(msg) {
       "",
       "  <led>:   red | yellow | green | all",
       "  <color>: red | yellow | green   (solo turns off the other two)",
-      "  blink half-period: 20..10000 ms (default 500)",
+      "  blink half-period: 20..5000 ms (default 500)",
       "  --soft, -s: silently exit 0 on device-connectivity errors (for hooks)",
     ].join("\n"),
   );
@@ -59,8 +63,8 @@ function parseAction(action, periodArg, idx) {
   if (action === "on") return { cmd: CMD_SET, idx, mode: MODE_ON, period: 0 };
   if (action === "blink") {
     const period = periodArg === undefined ? 500 : Number.parseInt(periodArg, 10);
-    if (!Number.isFinite(period) || period < 20 || period > 10000) {
-      usage("blink half-period must be an integer in 20..10000");
+    if (!Number.isFinite(period) || period < 20 || period > 5000) {
+      usage("blink half-period must be an integer in 20..5000");
     }
     return { cmd: CMD_SET, idx, mode: MODE_BLINK, period };
   }
@@ -115,7 +119,11 @@ function buildReport({ cmd, idx, mode, period }) {
 
 function printState(buf) {
   const status = buf[0];
-  console.log(`status: ${status === 0 ? "OK" : `BAD (0x${status.toString(16)})`}`);
+  const name = STATUS_NAMES[status] ?? "UNKNOWN";
+  console.log(`status: ${status === STATUS_OK ? "OK" : `${name} (0x${status.toString(16)})`}`);
+  if (status === STATUS_UNSUPPORTED) {
+    console.error("note: this board's LED backend can't apply that command; state unchanged");
+  }
   for (let i = 0; i < 3; i++) {
     const o = 1 + i * 3;
     const m = buf[o];
@@ -176,7 +184,11 @@ async function main() {
   try {
     let last;
     for (const cmd of commands) last = await sendOne(device, cmd);
-    if (!soft) printState(last);
+    if (!soft) {
+      printState(last);
+      // UNSUPPORTED is a hardware-capability no-op, not an error
+      if (last[0] !== STATUS_OK && last[0] !== STATUS_UNSUPPORTED) process.exitCode = 1;
+    }
   } catch (e) {
     if (!soft) {
       console.error(`error: ${e.message ?? e}`);
