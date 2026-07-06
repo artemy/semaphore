@@ -108,12 +108,7 @@ Codex hooks lifecycle is documented in [CODEX-README.md](hooks/CODEX-README.md)
 
 #### Plugin
 
-Add this to your `opencode.json`
-```
-{
-  "plugin": ["@artemy/semaphore@latest"]
-}
-```
+TODO
 
 Opencode hooks lifecycle is documented in [OPENCODE-README.md](hooks/OPENCODE-README.md)
 
