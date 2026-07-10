@@ -69,6 +69,20 @@ semaphore status             # read and print current device state
 
 ### Claude Code
 
+<details>
+<summary>Claude Code hooks lifecycle</summary>
+
+Claude Code support uses the documented lifecycle hooks in [`hooks/hooks.json`](hooks/hooks.json):
+
+| LED state      | Meaning                     | Hook events                         |
+|----------------|-----------------------------|-------------------------------------|
+| green solid    | Idle / waiting for input    | `SessionStart`, `Stop`              |
+| red solid      | Claude is busy              | `UserPromptSubmit`, `PostToolUse`   |
+| yellow blink   | Needs human attention       | `PermissionRequest`, `Notification` |
+| all off        | No active session           | `SessionEnd`                        |
+
+</details>
+
 #### Plugin (recommended)
 
 Make sure the package is installed globally first, then run from inside Claude Code:
@@ -80,11 +94,23 @@ Make sure the package is installed globally first, then run from inside Claude C
 
 #### Manual
 
-Merge the `hooks` key from `hooks/hooks.json` into your `.claude/settings.json`.
-
-Claude Code hooks lifecycle is documented in [CLAUDE-README.md](hooks/CLAUDE-README.md)
+Merge the `hooks` key from [`hooks/hooks.json`](hooks/hooks.json) into your `.claude/settings.json`.
 
 ## OpenAI Codex
+
+<details>
+<summary>Codex hooks lifecycle</summary>
+
+Codex support uses the documented Codex lifecycle hooks in [`hooks/codex-hooks.json`](hooks/codex-hooks.json):
+
+| LED state      | Meaning                  | Hook events                            |
+|----------------|--------------------------|----------------------------------------|
+| green solid    | Idle / waiting for input | `Stop`                                 |
+| red solid      | Codex is busy            | `UserPromptSubmit`, `PostToolUse`      |
+| yellow blink   | Needs human attention    | `PreToolUse` (on `request_user_input`) |
+| yellow blink   | Needs human approval     | `PermissionRequest`                    |
+
+</details>
 
 #### Plugin (recommended)
 
@@ -100,17 +126,28 @@ codex plugin add semaphore-hooks@semaphore
 
 ### Manual
 
-Copy the contents of `hooks/hooks-codex.json` into your `.codex/hooks.json`.
-
-Codex hooks lifecycle is documented in [CODEX-README.md](hooks/CODEX-README.md)
+Copy the contents of [`hooks/codex-hooks.json`](hooks/codex-hooks.json) into your `.codex/hooks.json`.
 
 ## Opencode
 
+<details>
+<summary>Opencode hooks lifecycle</summary>
+
+Opencode support uses the native plugin system — the plugin at
+[`.opencode/plugins/semaphore-hooks.js`](.opencode/plugins/semaphore-hooks.js) is auto-discovered and maps Opencode lifecycle events to the semaphore device:
+
+| LED state    | Meaning                  | Opencode events                                           |
+|--------------|--------------------------|-----------------------------------------------------------|
+| green solid  | Idle / waiting for input | `session.created`, `session.idle`                         |
+| red solid    | Opencode is busy         | `message.updated` (`role=user`), `tool.execute.after`     |
+| yellow blink | Needs human attention    | `permission.asked`, `tool.execute.before` (on `question`) |
+| all off      | No active session        | `session.deleted`, `dispose`                              |
+
+</details>
+
 #### Plugin
 
-TODO
-
-Opencode hooks lifecycle is documented in [OPENCODE-README.md](hooks/OPENCODE-README.md)
+TODO: Installation
 
 ## Built With
 
