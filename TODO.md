@@ -14,5 +14,5 @@
 
 ## Misc
 
-- [ ] build provenance
+- [x] build provenance
   - https://docs.npmjs.com/generating-provenance-statements
