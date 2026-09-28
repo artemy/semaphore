@@ -124,13 +124,14 @@ To set up the hooks without the plugin, copy the contents of [`hooks/codex-hooks
 <details>
 <summary>Hook events</summary>
 
-| Light        | Hook events                                                 |
-|--------------|-------------------------------------------------------------|
-| green        | `Stop`                                                      |
-| red          | `UserPromptSubmit`, `PostToolUse`                           |
-| yellow blink | `PermissionRequest`, `PreToolUse` (on `request_user_input`) |
+| Light        | Hook events                                                    |
+|--------------|----------------------------------------------------------------|
+| green        | `SessionStart` (after the boot animation), `Stop`, `Interrupt` |
+| red          | `UserPromptSubmit`, `PostToolUse`                              |
+| yellow blink | `PermissionRequest`, `PreToolUse` (on `request_user_input`)    |
+| off          | `SessionEnd`                                                   |
 
-Codex has no session-end hook, so the light stays on after you quit.
+`SessionStart` skips compaction, as in Claude Code.
 
 </details>
 

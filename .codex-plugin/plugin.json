@@ -1,6 +1,6 @@
 {
   "name": "semaphore-hooks",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Display Codex status on your USB-HID semaphore.",
   "author": {
     "name": "Artem Makarov"

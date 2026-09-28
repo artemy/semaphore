@@ -1,5 +1,16 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "semaphore --soft boot && semaphore --soft green on"
+          }
+        ]
+      }
+    ],
     "UserPromptSubmit": [
       {
         "hooks": [
@@ -12,11 +23,11 @@
     ],
     "PreToolUse": [
       {
-        "matcher":  "request_user_input",
+        "matcher": "request_user_input",
         "hooks": [
           {
             "type": "command",
-            "command": "semaphore --soft yellow blink"
+            "command": "semaphore --soft yellow blink 500"
           }
         ]
       }
@@ -47,6 +58,26 @@
           {
             "type": "command",
             "command": "semaphore --soft green on"
+          }
+        ]
+      }
+    ],
+    "Interrupt": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "semaphore --soft green on"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "semaphore --soft off"
           }
         ]
       }
