@@ -94,10 +94,17 @@ To set up the hooks without the plugin, merge the `hooks` key from [`hooks/hooks
 
 | Light        | Hook events                                                            |
 |--------------|------------------------------------------------------------------------|
-| green        | `SessionStart` (after the boot animation), `Stop`                      |
-| red          | `UserPromptSubmit`, `PostToolUse`                                      |
+| green        | `SessionStart` (after the boot animation), `Stop`, `StopFailure`       |
+| red          | `UserPromptSubmit`, `PostToolUse`, `PostToolUseFailure`                |
 | yellow blink | `PermissionRequest`, `Notification` (permission prompts and questions) |
 | off          | `SessionEnd`                                                           |
+
+`SessionStart` skips compaction, so an automatic compaction mid-turn does not turn the light green.
+
+Known limitations:
+
+- Claude Code has no hook for user interrupts. If you reject a permission prompt or dismiss a question with Esc, the light keeps blinking yellow until your next prompt.
+- Tool calls from background subagents turn the light red, even while a prompt is waiting for you.
 
 </details>
 
