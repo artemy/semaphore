@@ -15,9 +15,8 @@ export const semaphoreHooks = async ({ $ }) => ({
       case 'session.deleted':
         await $`semaphore --soft off`;
         break;
-      case 'permission.asked' | 'permission.v2.asked':
-        await $`semaphore --soft yellow blink 500`;
-        break;
+      case 'permission.asked':
+      case 'permission.v2.asked':
       case 'question.asked':
         await $`semaphore --soft yellow blink 500`;
         break;
