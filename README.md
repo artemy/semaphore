@@ -136,14 +136,16 @@ An npm package for the plugin is planned.
 <details>
 <summary>Plugin events</summary>
 
-| Light        | Opencode events                                         |
-|--------------|---------------------------------------------------------|
-| green        | `session.created`, `session.idle`                       |
-| red          | `message.updated` (user messages), `tool.execute.after` |
-| yellow blink | `permission.asked`, `question.asked`                    |
-| off          | `session.deleted`, `dispose`                            |
+| Light        | Opencode events                                                                                                        |
+|--------------|------------------------------------------------------------------------------------------------------------------------|
+| green        | `session.created`, `session.idle`, `question.rejected`                                                                 |
+| red          | `message.updated` (user messages), `tool.execute.after`, `permission.replied`, `question.replied`                      |
+| yellow blink | `permission.asked`, `question.asked`                                                                                   |
+| off          | `dispose`                                                                                                              |
 
-The startup animation plays when Opencode starts.
+The `permission.*` and `question.*` events are also handled in their `v2` forms.
+
+The startup animation plays when Opencode loads the plugin.
 
 </details>
 
