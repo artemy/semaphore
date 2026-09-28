@@ -1,24 +1,29 @@
 # Semaphore CLI
 
-![MIT License](https://img.shields.io/github/license/artemy/semaphore)
+[![npm version](https://img.shields.io/npm/v/semaphore-cli?logo=npm)](https://www.npmjs.com/package/semaphore-cli)
+[![MIT License](https://img.shields.io/github/license/artemy/semaphore)](LICENSE.md)
 
-🚦 CLI for a USB-HID traffic-light device that turns your desk light into a live session indicator for [Claude Code](https://claude.ai/code), [Codex](https://github.com/openai/codex), and [Opencode](https://opencode.ai).
+![Claude Code](https://img.shields.io/badge/Claude_Code-supported-green) ![Codex](https://img.shields.io/badge/Codex-supported-green) ![opencode](https://img.shields.io/badge/opencode-supported-green)
+
+🚦 Command-line tool for Semaphore, a USB status light. Hook it up to [Claude Code](https://claude.ai/code), [Codex](https://github.com/openai/codex) or [Opencode](https://opencode.ai) and see your agent status on a light indicator.
+
+> [!TIP]
+> Needs a board running the [Semaphore firmware](https://github.com/artemy/semaphore-firmware).
 
 ## Features
 
-- Control red, yellow, and green LEDs individually or all at once
-- Three modes per LED: `off`, `on`, and `blink` with configurable speed
-- `solo` command lights one LED and clears the other two
-- `status` query reads current device state
-- `boot` plays a startup animation
-- Claude Code, Codex, and Opencode hook integration — the light follows session events automatically where supported
+- Light up one color at a time: green, yellow, or red
+- Steady or blinking, with a configurable blink speed
+- Read back the current state of the light
+- Replay the startup animation on demand
+- Ready-made hooks for Claude Code, Codex and Opencode (support for more harnesses is in the future)
 
 ## Getting started
 
 ### Prerequisites
 
 - Node.js 18+
-- The semaphore device (VID `0x1209`, PID `0x0001`) connected via USB
+- A Semaphore light connected over USB. See the [firmware README](https://github.com/artemy/semaphore-firmware) for supported boards and flashing instructions.
 
 ### Installing
 
@@ -30,129 +35,122 @@ Or from source:
 
 ```shell
 git clone https://github.com/artemy/semaphore
-cd semaphore/software
+cd semaphore
 npm install
 npm install -g .
 ```
 
-## Usage
+### How to use
 
 ```
-semaphore <led> off
-semaphore <led> on
-semaphore <led> blink [half_period_ms]
-semaphore solo <color> on
-semaphore solo <color> blink [half_period_ms]
+semaphore <color> on
+semaphore <color> blink [half_period_ms]
+semaphore off
 semaphore status
 semaphore boot
 ```
 
-- `<led>`: `red` | `yellow` | `green` | `all`
-- `<color>`: `red` | `yellow` | `green` (solo turns off the other two)
-- blink half-period: 20–5000 ms (default 500)
-- `--soft` / `-s`: silently exit 0 on device-connectivity errors (for hooks)
+- `<color>` is `red`, `yellow` or `green`. The light shows one color at a time.
+- The blink half-period is 20–5000 ms (default 500).
+- `--soft` (or `-s`) exits silently with code 0 when the light is unplugged or unreachable (recommended for use in hooks).
 
-### Examples
+Examples:
 
 ```shell
-semaphore red on             # turn red LED on
-semaphore green blink 250    # fast-blink green (250 ms half-period)
-semaphore solo yellow on     # yellow on, red and green off
-semaphore all off            # turn everything off
-semaphore status             # read and print current device state
+semaphore red on             # steady red
+semaphore green blink 250    # fast blinking green
+semaphore off                # turn the light off
+semaphore status             # get the current state
 ```
 
+## Hooks
 
-## Hooks installation
+Hooks make the light follow your agent's session automatically:
 
-> ⚠️ Every hook command uses `--soft`. This keeps the LED best-effort when the device is unplugged, and suppresses stdout so hook output is not injected into the model's context.
+| Light        | Meaning                |
+|--------------|------------------------|
+| green        | Idle, waiting for you  |
+| red          | Agent is busy          |
+| yellow blink | Agent needs your input |
+| off          | No active session      |
+
+⚠️ All hooks call `semaphore` from your `PATH`, so install the CLI globally first (see [Installing](#installing)).
+
+Every hook command uses `--soft`. An unplugged light never breaks your session, and no hook output ends up in the model's context.
 
 ### Claude Code
 
-<details>
-<summary>Claude Code hooks lifecycle</summary>
-
-Claude Code support uses the documented lifecycle hooks in [`hooks/hooks.json`](hooks/hooks.json):
-
-| LED state      | Meaning                     | Hook events                         |
-|----------------|-----------------------------|-------------------------------------|
-| green solid    | Idle / waiting for input    | `SessionStart`, `Stop`              |
-| red solid      | Claude is busy              | `UserPromptSubmit`, `PostToolUse`   |
-| yellow blink   | Needs human attention       | `PermissionRequest`, `Notification` |
-| all off        | No active session           | `SessionEnd`                        |
-
-</details>
-
-#### Plugin (recommended)
-
-Make sure the package is installed globally first, then run from inside Claude Code:
+Run from inside Claude Code:
 
 ```
 /plugin marketplace add artemy/semaphore
 /plugin install semaphore-hooks@semaphore
 ```
 
-#### Manual
-
-Merge the `hooks` key from [`hooks/hooks.json`](hooks/hooks.json) into your `.claude/settings.json`.
-
-## OpenAI Codex
+To set up the hooks without the plugin, merge the `hooks` key from [`hooks/hooks.json`](hooks/hooks.json) into your `.claude/settings.json`.
 
 <details>
-<summary>Codex hooks lifecycle</summary>
+<summary>Hook events</summary>
 
-Codex support uses the documented Codex lifecycle hooks in [`hooks/codex-hooks.json`](hooks/codex-hooks.json):
-
-| LED state      | Meaning                  | Hook events                            |
-|----------------|--------------------------|----------------------------------------|
-| green solid    | Idle / waiting for input | `Stop`                                 |
-| red solid      | Codex is busy            | `UserPromptSubmit`, `PostToolUse`      |
-| yellow blink   | Needs human attention    | `PreToolUse` (on `request_user_input`) |
-| yellow blink   | Needs human approval     | `PermissionRequest`                    |
+| Light        | Hook events                                                            |
+|--------------|------------------------------------------------------------------------|
+| green        | `SessionStart` (after the boot animation), `Stop`                      |
+| red          | `UserPromptSubmit`, `PostToolUse`                                      |
+| yellow blink | `PermissionRequest`, `Notification` (permission prompts and questions) |
+| off          | `SessionEnd`                                                           |
 
 </details>
 
-#### Plugin (recommended)
+### Codex
 
-Make sure the package is installed globally first, then run from your terminal:
-
+Run from your terminal:
 
 ```shell
 codex plugin marketplace add artemy/semaphore
 codex plugin add semaphore-hooks@semaphore
 ```
 
-> ⚠️ Codex will prompt you to review the newly installed hooks after you run it next time.
+⚠️ The next time you start Codex, it asks you to review the new hooks.
 
-### Manual
-
-Copy the contents of [`hooks/codex-hooks.json`](hooks/codex-hooks.json) into your `.codex/hooks.json`.
-
-## Opencode
+To set up the hooks without the plugin, copy the contents of [`hooks/codex-hooks.json`](hooks/codex-hooks.json) into your `.codex/hooks.json`.
 
 <details>
-<summary>Opencode hooks lifecycle</summary>
+<summary>Hook events</summary>
 
-Opencode support uses the native plugin system — the plugin at
-[`.opencode/plugins/semaphore-hooks.js`](.opencode/plugins/semaphore-hooks.js) is auto-discovered and maps Opencode lifecycle events to the semaphore device:
+| Light        | Hook events                                                 |
+|--------------|-------------------------------------------------------------|
+| green        | `Stop`                                                      |
+| red          | `UserPromptSubmit`, `PostToolUse`                           |
+| yellow blink | `PermissionRequest`, `PreToolUse` (on `request_user_input`) |
 
-| LED state    | Meaning                  | Opencode events                                           |
-|--------------|--------------------------|-----------------------------------------------------------|
-| green solid  | Idle / waiting for input | `session.created`, `session.idle`                         |
-| red solid    | Opencode is busy         | `message.updated` (`role=user`), `tool.execute.after`     |
-| yellow blink | Needs human attention    | `permission.asked`, `tool.execute.before` (on `question`) |
-| all off      | No active session        | `session.deleted`, `dispose`                              |
+Codex has no session-end hook, so the light stays on after you quit.
 
 </details>
 
-#### Plugin
+### Opencode
 
-TODO: Installation
+Copy [`.opencode/plugins/semaphore-hooks.js`](.opencode/plugins/semaphore-hooks.js) into `~/.config/opencode/plugins/` to use it in every project, or into a project's `.opencode/plugins/` to use it in that project only. Opencode loads it automatically on the next start.
 
-## Built With
+An npm package for the plugin is planned.
+
+<details>
+<summary>Plugin events</summary>
+
+| Light        | Opencode events                                         |
+|--------------|---------------------------------------------------------|
+| green        | `session.created`, `session.idle`                       |
+| red          | `message.updated` (user messages), `tool.execute.after` |
+| yellow blink | `permission.asked`, `question.asked`                    |
+| off          | `session.deleted`, `dispose`                            |
+
+The startup animation plays when Opencode starts.
+
+</details>
+
+## Built with
 
 - [Node.js](https://nodejs.org/)
-- [node-hid](https://github.com/node-hid/node-hid) — USB HID device access
+- [node-hid](https://github.com/node-hid/node-hid) - USB HID access
 
 ## Contributing
 
@@ -160,4 +158,4 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ## License
 
-This project is licensed under the MIT License — see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License. See [LICENSE.md](LICENSE.md) for details.

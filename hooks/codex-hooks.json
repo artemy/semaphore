@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "semaphore --soft solo red on"
+            "command": "semaphore --soft red on"
           }
         ]
       }
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "semaphore --soft solo yellow blink"
+            "command": "semaphore --soft yellow blink"
           }
         ]
       }
@@ -26,7 +26,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "semaphore --soft solo red on"
+            "command": "semaphore --soft red on"
           }
         ]
       }
@@ -36,7 +36,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "semaphore --soft solo yellow blink 500"
+            "command": "semaphore --soft yellow blink 500"
           }
         ]
       }
@@ -46,7 +46,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "semaphore --soft solo green on"
+            "command": "semaphore --soft green on"
           }
         ]
       }

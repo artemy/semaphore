@@ -2,34 +2,34 @@ export const semaphoreHooks = async ({ $ }) => ({
   event: async ({ event }) => {
     switch (event.type) {
       case 'session.created':
-        await $`semaphore --soft solo green on`;
+        await $`semaphore --soft green on`;
         break;
       case 'message.updated':
         if (event.properties.info.role === 'user') {
-          await $`semaphore --soft solo red on`;
+          await $`semaphore --soft red on`;
         }
         break;
       case 'session.idle':
-        await $`semaphore --soft solo green on`;
+        await $`semaphore --soft green on`;
         break;
       case 'session.deleted':
-        await $`semaphore --soft all off`;
+        await $`semaphore --soft off`;
         break;
       case 'permission.asked' | 'permission.v2.asked':
-        await $`semaphore --soft solo yellow blink 500`;
+        await $`semaphore --soft yellow blink 500`;
         break;
       case 'question.asked':
-        await $`semaphore --soft solo yellow blink 500`;
+        await $`semaphore --soft yellow blink 500`;
         break;
     }
   },
   'tool.execute.after': async () => {
-    await $`semaphore --soft solo red on`;
+    await $`semaphore --soft red on`;
   },
   start: async () => {
     await $`semaphore --soft boot`;
   },
   dispose: async () => {
-    await $`semaphore --soft all off`;
+    await $`semaphore --soft off`;
   }
 });

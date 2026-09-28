@@ -1,54 +1,62 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## What this is
 
-A small CLI (`cli.js`) that drives a USB-HID traffic-light device (VID `0x1209`, PID `0x0001`) with red/yellow/green LEDs. Each LED can be off, on, or blinking at a configurable half-period (20–5000 ms). The CLI also has a `status` query and a `boot` animation.
+`cli.js` is a single-file CLI for a USB-HID semaphore lamp (VID `0x1209`, PID `0x0001`). The lamp shows **one color at a time** (red, yellow or green), either steady or blinking, or it is off. The CLI also has `status` and `boot` (startup animation). Usage is in the header comment of `cli.js`.
 
 ## Commands
 
 ```
 npm install              # installs node-hid (native build)
-node ./cli.js …          # see usage in cli.js header
-npm install -g .         # exposes the `semaphore` bin on PATH (used by hooks.json)
-npm pack --dry-run       # verify package contents before publish
+node ./cli.js …          # run locally
+npm install -g .         # puts the `semaphore` bin on PATH (all hooks call it)
+npm pack --dry-run       # check package contents before publishing
 ```
 
-The package exposes a `semaphore` bin (see `package.json` `bin` field). `files` is allowlisted to ship only `cli.js` and `scripts/` — if you add a new runtime file, add it to `files` too or it won't be in the published tarball.
+There are no build, lint or test scripts (`npm test` is a placeholder).
 
-No build, lint, or test scripts are wired up (`npm test` is a placeholder).
+`package.json` `files` only allows `cli.js` and `scripts/`. If you add a runtime file, add it to `files` too.
 
-## Architecture
+## CLI
 
-- `cli.js` — single-file CLI. Flow: `parseArgs` → `openDevice` → `sendOne` per parsed command → `printState` on the last reply.
-- HID protocol: 9-byte output report `[reportId=0, cmd, idx, mode, period_lo, period_hi, 0, 0, 0]`.
-  - `cmd`: `0x01` SET, `0x03` GET, `0x04` BOOT_ANIM.
-  - `idx`: LED index — green=0, yellow=1, red=2, all=0xff.
-  - `mode`: 0 off, 1 on, 2 blink.
-  - The leading `0x00` is a report-ID prefix the OS requires even though the device's HID descriptor declares no report ID. Do not "clean it up."
-- GET reply layout (parsed by `printState`): byte 0 status, then 3-byte triples per LED `(mode, period_lo, period_hi)` in green/yellow/red order.
-- `solo <color>` is implemented client-side as two writes: first an `all off`, then set the chosen LED. `solo` rejects `all` and only accepts `on|blink` (not `off` — use `all off` for that).
-- `sendOne` waits up to 1s for a `data` event from the device per write and rejects otherwise. Any new command must produce a reply within that window or the write fails (loud by default, silent under `--soft`).
-- Default behavior: device-absent, open failures, and mid-run errors print `error: ...` to stderr and exit 1. Pass `--soft` (or `-s`) anywhere on the command line to silently swallow all device-connectivity errors and exit 0 with no output — this mode is for hooks (see below). Preserve this two-mode behavior when editing error handling.
+- Flow: `parseArgs` → `openDevice` → `sendOne` → `printState`. Every command sends exactly one report.
+- `sendOne` waits up to 1 s for the device's reply. A new command must get a reply within that window.
+- Errors (device absent, open failure, no reply) print `error: ...` to stderr and exit 1. With `--soft`/`-s` anywhere on the command line, device-connectivity errors are swallowed instead: no output, exit 0. Keep both modes when you edit error handling.
 
-## Hook integration
+## HID protocol
 
-The device is driven from session lifecycle events by a Claude Code hooks config. Either way of activating it requires the package globally installed first (`npm install -g .` or `npm link`), because the hook commands invoke the bare `semaphore` bin.
+SET writes the device's state and GET reads it back. Both use the same 4-byte STATE block:
 
-- **Plugin (preferred).** `.claude-plugin/marketplace.json` registers this repo as a local plugin marketplace (marketplace name `semaphore`). The hooks live in `hooks/hooks.json`. Enable from inside Claude Code:
-  ```
-  /plugin marketplace add artemy/semaphore
-  /plugin install semaphore-hooks@semaphore
-  ```
-  A global install nags about these steps once via `scripts/postinstall.js`.
-- **Manual (fallback).** Copy or symlink `hooks/hooks.json` into `.claude/settings.json` (or merge its `hooks` key) to activate without the plugin.
+```
+STATE  [mode, color, period_lo, period_hi]
+OUT    [0x00, cmd, <STATE>, 0, 0, 0]      9 bytes
+IN     [status, <STATE>, 0, 0, 0]         8 bytes
+```
 
-Every command in `hooks/hooks.json` uses `--soft`. This is load-bearing: it keeps the LED best-effort when the device is unplugged, and it suppresses stdout so the `SessionStart` and `UserPromptSubmit` hooks (whose stdout Claude Code ingests into the model's context) don't inject device telemetry into the conversation. If you add a new hook, use `--soft`.
+- `mode`: `0x00` off (color and period ignored), `0x01` steady (CLI `on`), `0x02` blink.
+- `color`: green=0, yellow=1, red=2. There is no "all".
+- `period`: u16 LE blink half-period in ms, 20–5000. It only matters for blink.
+- `cmd`: `0x01` SET, `0x02` GET, `0x03` BOOT_ANIM.
+- `status`: `0x00` OK, `0x01` BAD. The firmware answers BAD to anything it can't decode: an unknown cmd or mode, `color > 2`, or an out-of-range period.
+- The leading `0x00` in OUT is a report-ID prefix that the OS requires, even though the HID descriptor declares no report ID. Do not remove it.
 
-Current mapping and its intended visual language (preserve this semantic when editing):
+## Agent hooks
 
-- **red solid** = Claude is busy (`UserPromptSubmit`, `PostToolUse`)
-- **yellow blink** = needs human attention (`PermissionRequest`, `Notification`)
-- **green solid** = idle / done (`SessionStart` after boot animation, `Stop`)
-- **all off** = no session (`SessionEnd`)
+Each coding agent drives the lamp through its own integration. `README.md` has the install steps and the event tables.
+
+| Agent       | Hooks                                  | Packaging                                      |
+|-------------|----------------------------------------|------------------------------------------------|
+| Claude Code | `hooks/hooks.json`                     | `.claude-plugin/marketplace.json`              |
+| Codex       | `hooks/codex-hooks.json`               | `.codex-plugin/plugin.json`, `.agents/plugins/` |
+| Opencode    | `.opencode/plugins/semaphore-hooks.js` | copied by the user                             |
+
+`scripts/postinstall.js` reminds the user once, after a global install, to enable the plugin.
+
+When you add or edit a hook in any integration:
+
+- **Always pass `--soft`.** Hooks must not fail when the lamp is unplugged. Some agents (for example Claude Code on `SessionStart`/`UserPromptSubmit`) also feed hook stdout into the model's context, so hooks must print nothing.
+- **Keep the same colors in every agent:**
+  - red steady = agent is busy
+  - yellow blink = needs the user (permission prompt, question)
+  - green steady = idle / done (after `boot` at session start)
+  - off = no session
