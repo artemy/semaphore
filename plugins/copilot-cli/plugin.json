@@ -1,0 +1,13 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "semaphore-hooks",
+  "version": "0.1.0",
+  "description": "Display GitHub Copilot CLI status on your USB-HID semaphore.",
+  "author": {
+    "name": "Artem Makarov"
+  },
+  "homepage": "https://github.com/artemy/semaphore",
+  "repository": "https://github.com/artemy/semaphore",
+  "license": "MIT",
+  "keywords": ["hooks", "hid", "led", "traffic-light", "semaphore", "status-light", "copilot"]
+}

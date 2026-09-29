@@ -44,12 +44,13 @@ IN     [status, <STATE>, 0, 0, 0]         8 bytes
 
 Each coding agent drives the lamp through its own integration. `README.md` has the install steps and the event tables.
 
-| Agent       | Hooks                                  | Packaging                                      |
-|-------------|----------------------------------------|------------------------------------------------|
-| Claude Code | `hooks/hooks.json`                     | `.claude-plugin/marketplace.json`              |
-| Codex       | `hooks/codex-hooks.json`               | `.codex-plugin/plugin.json`, `.agents/plugins/` |
-| Opencode    | `.opencode/plugins/semaphore-hooks.js` | copied by the user                             |
-| Antigravity | `plugins/semaphore-hooks/hooks.json`   | `plugins/semaphore-hooks/`                     |
+| Agent          | Hooks                                                     | Packaging                                       |
+|----------------|-----------------------------------------------------------|-------------------------------------------------|
+| Antigravity    | `plugins/semaphore-hooks/hooks.json`                       | `plugins/semaphore-hooks/`                       |
+| Claude Code    | `hooks/hooks.json`                                        | `.claude-plugin/marketplace.json`               |
+| Codex          | `hooks/codex-hooks.json`                                  | `.codex-plugin/plugin.json`, `.agents/plugins/` |
+| GitHub Copilot | `plugins/copilot-cli/com.github.copilot/hooks/hooks.json` | `plugins/copilot-cli/`                           |
+| Opencode       | `.opencode/plugins/semaphore-hooks.js`                    | copied by the user                              |
 
 `scripts/postinstall.js` reminds the user once, after a global install, to enable the plugin.
 

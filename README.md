@@ -3,9 +3,10 @@
 [![npm version](https://img.shields.io/npm/v/semaphore-cli?logo=npm)](https://www.npmjs.com/package/semaphore-cli)
 [![MIT License](https://img.shields.io/github/license/artemy/semaphore)](LICENSE.md)
 
-![Claude Code](https://img.shields.io/badge/Claude_Code-supported-green) ![Codex](https://img.shields.io/badge/Codex-supported-green) ![opencode](https://img.shields.io/badge/opencode-supported-green) ![Antigravity CLI](https://img.shields.io/badge/Antigravity_CLI-supported-green)
+![Antigravity CLI](https://img.shields.io/badge/Antigravity_CLI-supported-green)
+![Claude Code](https://img.shields.io/badge/Claude_Code-supported-green) ![Codex](https://img.shields.io/badge/Codex-supported-green) ![GitHub Copilot CLI](https://img.shields.io/badge/GitHub_Copilot_CLI-supported-green) ![opencode](https://img.shields.io/badge/opencode-supported-green)
 
-🚦 Command-line tool for Semaphore, a USB status light. Hook it up to [Claude Code](https://claude.ai/code), [Codex](https://github.com/openai/codex), [Opencode](https://opencode.ai) or [Antigravity CLI](https://antigravity.google) and see your agent status on a light indicator.
+🚦 Command-line tool for Semaphore, a USB status light. Hook it up to [Claude Code](https://claude.ai/code), [Codex](https://github.com/openai/codex), [GitHub Copilot CLI](https://github.com/features/copilot/cli), [Opencode](https://opencode.ai) or [Antigravity CLI](https://antigravity.google) and see your agent status on a light indicator.
 
 > [!TIP]
 > Needs a board running the [Semaphore firmware](https://github.com/artemy/semaphore-firmware).
@@ -16,7 +17,7 @@
 - Steady or blinking, with a configurable blink speed
 - Read back the current state of the light
 - Replay the startup animation on demand
-- Ready-made hooks for Claude Code, Codex, Opencode, and Antigravity (support for more harnesses is in the future)
+- Ready-made hooks for Claude Code, Codex, GitHub Copilot CLI, Opencode, and Antigravity (support for more harnesses is in the future)
 
 ## Getting started
 
@@ -78,6 +79,36 @@ Hooks make the light follow your agent's session automatically:
 
 Every hook command uses `--soft`. An unplugged light never breaks your session, and no hook output ends up in the model's context.
 
+### Antigravity CLI
+
+Run from your terminal:
+
+```shell
+agy plugin install https://github.com/artemy/semaphore
+```
+
+Or from a local clone:
+
+```shell
+agy plugin install ./plugins/semaphore-hooks
+```
+
+<details>
+<summary>Hook events</summary>
+
+| Light        | Antigravity events                             |
+|--------------|------------------------------------------------|
+| green        | `Stop`                                         |
+| red          | `PreInvocation`, `PostToolUse`                 |
+| yellow blink | `PreToolUse` (on `ask_question`, `run_command`)|
+
+Known limitations:
+
+- Antigravity does not have `SessionStart`, `SessionEnd`, or `Interrupt` lifecycle hooks. As a result, the startup boot animation does not play automatically, and the light does not turn off when exiting the CLI session.
+- There is no dedicated `PermissionRequest` event hook; yellow blinking is triggered via `PreToolUse` on `ask_question` and `run_command`. Commands that are already permitted will briefly flash yellow before executing.
+
+</details>
+
 ### Claude Code
 
 Run from inside Claude Code:
@@ -135,6 +166,33 @@ To set up the hooks without the plugin, copy the contents of [`hooks/codex-hooks
 
 </details>
 
+### GitHub Copilot CLI
+
+Register the Semaphore marketplace and install its Copilot CLI plugin:
+
+```shell
+copilot plugin marketplace add artemy/semaphore
+copilot plugin install semaphore-hooks@semaphore
+```
+
+Restart Copilot CLI after installing the plugin. Every hook uses `--soft` and suppresses command output so the light works without interrupting the session or affecting hook output.
+
+<details>
+<summary>Hook events</summary>
+
+| Light        | Hook events                                                                                 |
+|--------------|---------------------------------------------------------------------------------------------|
+| green        | `agentStop`                                                                                |
+| red          | `userPromptSubmitted`, `preToolUse`, `postToolUse`, `postToolUseFailure`                    |
+| yellow blink | `permissionRequest`, `notification` (permission prompts and elicitation dialogs)            |
+| off          | `sessionEnd`                                                                                |
+
+Known limitations:
+
+- Copilot CLI's `sessionStart` hook runs only after the first prompt, so Copilot CLI does not play a startup animation or set green before the first prompt.
+
+</details>
+
 ### Opencode
 
 Copy [`.opencode/plugins/semaphore-hooks.js`](.opencode/plugins/semaphore-hooks.js) into `~/.config/opencode/plugins/` to use it in every project, or into a project's `.opencode/plugins/` to use it in that project only. Opencode loads it automatically on the next start.
@@ -154,36 +212,6 @@ An npm package for the plugin is planned.
 The `permission.*` and `question.*` events are also handled in their `v2` forms.
 
 The startup animation plays when Opencode loads the plugin.
-
-</details>
-
-### Antigravity CLI
-
-Run from your terminal:
-
-```shell
-agy plugin install https://github.com/artemy/semaphore
-```
-
-Or from a local clone:
-
-```shell
-agy plugin install ./plugins/semaphore-hooks
-```
-
-<details>
-<summary>Hook events</summary>
-
-| Light        | Antigravity events                             |
-|--------------|------------------------------------------------|
-| green        | `Stop`                                         |
-| red          | `PreInvocation`, `PostToolUse`                 |
-| yellow blink | `PreToolUse` (on `ask_question`, `run_command`)|
-
-Known limitations:
-
-- Antigravity does not have `SessionStart`, `SessionEnd`, or `Interrupt` lifecycle hooks. As a result, the startup boot animation does not play automatically, and the light does not turn off when exiting the CLI session.
-- There is no dedicated `PermissionRequest` event hook; yellow blinking is triggered via `PreToolUse` on `ask_question` and `run_command`. Commands that are already permitted will briefly flash yellow before executing.
 
 </details>
 

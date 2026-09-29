@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "hooks": {
+    "userPromptSubmitted": [
+      {
+        "type": "command",
+        "bash": "semaphore --soft red on",
+        "powershell": "semaphore --soft red on",
+        "timeoutSec": 5
+      }
+    ],
+    "preToolUse": [
+      {
+        "type": "command",
+        "bash": "semaphore --soft red on",
+        "powershell": "semaphore --soft red on",
+        "timeoutSec": 5
+      }
+    ],
+    "postToolUse": [
+      {
+        "type": "command",
+        "bash": "semaphore --soft red on",
+        "powershell": "semaphore --soft red on",
+        "timeoutSec": 5
+      }
+    ],
+    "postToolUseFailure": [
+      {
+        "type": "command",
+        "bash": "semaphore --soft red on",
+        "powershell": "semaphore --soft red on",
+        "timeoutSec": 5
+      }
+    ],
+    "permissionRequest": [
+      {
+        "type": "command",
+        "bash": "semaphore --soft yellow blink 500",
+        "powershell": "semaphore --soft yellow blink 500",
+        "timeoutSec": 5
+      }
+    ],
+    "notification": [
+      {
+        "type": "command",
+        "matcher": "permission_prompt|elicitation_dialog",
+        "bash": "semaphore --soft yellow blink 500",
+        "powershell": "semaphore --soft yellow blink 500",
+        "timeoutSec": 5
+      }
+    ],
+    "agentStop": [
+      {
+        "type": "command",
+        "bash": "semaphore --soft green on",
+        "powershell": "semaphore --soft green on",
+        "timeoutSec": 5
+      }
+    ],
+    "sessionEnd": [
+      {
+        "type": "command",
+        "bash": "semaphore --soft off",
+        "powershell": "semaphore --soft off",
+        "timeoutSec": 5
+      }
+    ]
+  }
+}

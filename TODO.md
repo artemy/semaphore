@@ -5,7 +5,7 @@
 - [x] Claude Code support
 - [x] Codex support
 - [x] Antigravity CLI support
-- [ ] GitHub Copilot support
+- [x] GitHub Copilot support
 - [x] OpenCode support
   - [ ] plugin published to NPM
 - [ ] Cursor support

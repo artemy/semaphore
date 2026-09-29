@@ -1,0 +1,18 @@
+{
+  "name": "semaphore",
+  "owner": {
+    "name": "Artem Makarov"
+  },
+  "metadata": {
+    "description": "Display GitHub Copilot CLI status on your USB-HID semaphore.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "semaphore-hooks",
+      "description": "Display GitHub Copilot CLI status on your USB-HID semaphore.",
+      "version": "0.1.0",
+      "source": "plugins/copilot-cli"
+    }
+  ]
+}
