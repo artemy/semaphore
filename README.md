@@ -3,9 +3,9 @@
 [![npm version](https://img.shields.io/npm/v/semaphore-cli?logo=npm)](https://www.npmjs.com/package/semaphore-cli)
 [![MIT License](https://img.shields.io/github/license/artemy/semaphore)](LICENSE.md)
 
-![Claude Code](https://img.shields.io/badge/Claude_Code-supported-green) ![Codex](https://img.shields.io/badge/Codex-supported-green) ![opencode](https://img.shields.io/badge/opencode-supported-green) ![Antigravity](https://img.shields.io/badge/Antigravity-supported-green)
+![Claude Code](https://img.shields.io/badge/Claude_Code-supported-green) ![Codex](https://img.shields.io/badge/Codex-supported-green) ![opencode](https://img.shields.io/badge/opencode-supported-green) ![Antigravity CLI](https://img.shields.io/badge/Antigravity_CLI-supported-green)
 
-🚦 Command-line tool for Semaphore, a USB status light. Hook it up to [Claude Code](https://claude.ai/code), [Codex](https://github.com/openai/codex), [Opencode](https://opencode.ai) or [Antigravity](https://antigravity.google) and see your agent status on a light indicator.
+🚦 Command-line tool for Semaphore, a USB status light. Hook it up to [Claude Code](https://claude.ai/code), [Codex](https://github.com/openai/codex), [Opencode](https://opencode.ai) or [Antigravity CLI](https://antigravity.google) and see your agent status on a light indicator.
 
 > [!TIP]
 > Needs a board running the [Semaphore firmware](https://github.com/artemy/semaphore-firmware).
@@ -157,7 +157,7 @@ The startup animation plays when Opencode loads the plugin.
 
 </details>
 
-### Antigravity
+### Antigravity CLI
 
 Run from your terminal:
 

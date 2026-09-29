@@ -4,7 +4,7 @@
 
 - [x] Claude Code support
 - [x] Codex support
-- [ ] Antigravity support
+- [x] Antigravity CLI support
 - [ ] GitHub Copilot support
 - [x] OpenCode support
   - [ ] plugin published to NPM
