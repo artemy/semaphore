@@ -4,9 +4,9 @@
 [![MIT License](https://img.shields.io/github/license/artemy/semaphore)](LICENSE.md)
 
 ![Antigravity CLI](https://img.shields.io/badge/Antigravity_CLI-supported-green)
-![Claude Code](https://img.shields.io/badge/Claude_Code-supported-green) ![Codex](https://img.shields.io/badge/Codex-supported-green) ![GitHub Copilot CLI](https://img.shields.io/badge/GitHub_Copilot_CLI-supported-green) ![opencode](https://img.shields.io/badge/opencode-supported-green)
+![Claude Code](https://img.shields.io/badge/Claude_Code-supported-green) ![Codex](https://img.shields.io/badge/Codex-supported-green) ![GitHub Copilot CLI](https://img.shields.io/badge/GitHub_Copilot_CLI-supported-green) ![OpenCode](https://img.shields.io/badge/OpenCode-supported-green)
 
-🚦 Command-line tool for Semaphore, a USB status light. Hook it up to [Claude Code](https://claude.ai/code), [Codex](https://github.com/openai/codex), [GitHub Copilot CLI](https://github.com/features/copilot/cli), [Opencode](https://opencode.ai) or [Antigravity CLI](https://antigravity.google) and see your agent status on a light indicator.
+🚦 Command-line tool for Semaphore, a USB status light. Hook it up to [Claude Code](https://claude.ai/code), [Codex](https://github.com/openai/codex), [GitHub Copilot CLI](https://github.com/features/copilot/cli), [OpenCode](https://opencode.ai) or [Antigravity CLI](https://antigravity.google) and see your agent status on a light indicator.
 
 > [!TIP]
 > Needs a board running the [Semaphore firmware](https://github.com/artemy/semaphore-firmware).
@@ -17,7 +17,7 @@
 - Steady or blinking, with a configurable blink speed
 - Read back the current state of the light
 - Replay the startup animation on demand
-- Ready-made hooks for Claude Code, Codex, GitHub Copilot CLI, Opencode, and Antigravity (support for more harnesses is in the future)
+- Ready-made hooks for Claude Code, Codex, GitHub Copilot CLI, OpenCode, and Antigravity (support for more harnesses is in the future)
 
 ## Getting started
 
@@ -193,16 +193,16 @@ Known limitations:
 
 </details>
 
-### Opencode
+### OpenCode
 
-Copy [`.opencode/plugins/semaphore-hooks.js`](.opencode/plugins/semaphore-hooks.js) into `~/.config/opencode/plugins/` to use it in every project, or into a project's `.opencode/plugins/` to use it in that project only. Opencode loads it automatically on the next start.
+Copy [`.opencode/plugins/semaphore-hooks.js`](.opencode/plugins/semaphore-hooks.js) into `~/.config/opencode/plugins/` to use it in every project, or into a project's `.opencode/plugins/` to use it in that project only. OpenCode loads it automatically on the next start.
 
 An npm package for the plugin is planned.
 
 <details>
 <summary>Plugin events</summary>
 
-| Light        | Opencode events                                                                                                        |
+| Light        | OpenCode events                                                                                                        |
 |--------------|------------------------------------------------------------------------------------------------------------------------|
 | green        | `session.created`, `session.idle`, `question.rejected`                                                                 |
 | red          | `message.updated` (user messages), `tool.execute.after`, `permission.replied`, `question.replied`                      |
@@ -211,7 +211,7 @@ An npm package for the plugin is planned.
 
 The `permission.*` and `question.*` events are also handled in their `v2` forms.
 
-The startup animation plays when Opencode loads the plugin.
+The startup animation plays when OpenCode loads the plugin.
 
 </details>
 

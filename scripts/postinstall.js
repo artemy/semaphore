@@ -10,7 +10,7 @@ console.log(
         "",
         "semaphore-cli installed.",
         "",
-        "Optional — install hooks into your AI coding tool (Claude Code, Codex, Opencode, Antigravity)",
+        "Optional — install hooks into your AI coding tool (Claude Code, Codex, OpenCode, Antigravity)",
         "Instructions available at https://github.com/artemy/semaphore"
     ].join("\n"),
 );

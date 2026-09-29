@@ -50,7 +50,7 @@ Each coding agent drives the lamp through its own integration. `README.md` has t
 | Claude Code    | `hooks/hooks.json`                                        | `.claude-plugin/marketplace.json`               |
 | Codex          | `hooks/codex-hooks.json`                                  | `.codex-plugin/plugin.json`, `.agents/plugins/` |
 | GitHub Copilot | `plugins/copilot-cli/com.github.copilot/hooks/hooks.json` | `plugins/copilot-cli/`                           |
-| Opencode       | `.opencode/plugins/semaphore-hooks.js`                    | copied by the user                              |
+| OpenCode       | `.opencode/plugins/semaphore-hooks.js`                    | copied by the user                              |
 
 `scripts/postinstall.js` reminds the user once, after a global install, to enable the plugin.
 
