@@ -1,0 +1,38 @@
+{
+  "semaphore": {
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "semaphore --soft red on"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "ask_question|run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "semaphore --soft yellow blink 500"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "semaphore --soft red on"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "semaphore --soft green on"
+      }
+    ]
+  }
+}

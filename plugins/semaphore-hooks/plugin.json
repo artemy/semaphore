@@ -1,0 +1,6 @@
+{
+  "name": "semaphore-hooks",
+  "displayName": "Semaphore Hooks",
+  "description": "Display Antigravity CLI status on your USB-HID semaphore.",
+  "version": "0.1.0"
+}

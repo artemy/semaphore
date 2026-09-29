@@ -3,9 +3,9 @@
 [![npm version](https://img.shields.io/npm/v/semaphore-cli?logo=npm)](https://www.npmjs.com/package/semaphore-cli)
 [![MIT License](https://img.shields.io/github/license/artemy/semaphore)](LICENSE.md)
 
-![Claude Code](https://img.shields.io/badge/Claude_Code-supported-green) ![Codex](https://img.shields.io/badge/Codex-supported-green) ![opencode](https://img.shields.io/badge/opencode-supported-green)
+![Claude Code](https://img.shields.io/badge/Claude_Code-supported-green) ![Codex](https://img.shields.io/badge/Codex-supported-green) ![opencode](https://img.shields.io/badge/opencode-supported-green) ![Antigravity](https://img.shields.io/badge/Antigravity-supported-green)
 
-🚦 Command-line tool for Semaphore, a USB status light. Hook it up to [Claude Code](https://claude.ai/code), [Codex](https://github.com/openai/codex) or [Opencode](https://opencode.ai) and see your agent status on a light indicator.
+🚦 Command-line tool for Semaphore, a USB status light. Hook it up to [Claude Code](https://claude.ai/code), [Codex](https://github.com/openai/codex), [Opencode](https://opencode.ai) or [Antigravity](https://antigravity.google) and see your agent status on a light indicator.
 
 > [!TIP]
 > Needs a board running the [Semaphore firmware](https://github.com/artemy/semaphore-firmware).
@@ -16,7 +16,7 @@
 - Steady or blinking, with a configurable blink speed
 - Read back the current state of the light
 - Replay the startup animation on demand
-- Ready-made hooks for Claude Code, Codex and Opencode (support for more harnesses is in the future)
+- Ready-made hooks for Claude Code, Codex, Opencode, and Antigravity (support for more harnesses is in the future)
 
 ## Getting started
 
@@ -154,6 +154,36 @@ An npm package for the plugin is planned.
 The `permission.*` and `question.*` events are also handled in their `v2` forms.
 
 The startup animation plays when Opencode loads the plugin.
+
+</details>
+
+### Antigravity
+
+Run from your terminal:
+
+```shell
+agy plugin install https://github.com/artemy/semaphore
+```
+
+Or from a local clone:
+
+```shell
+agy plugin install ./plugins/semaphore-hooks
+```
+
+<details>
+<summary>Hook events</summary>
+
+| Light        | Antigravity events                             |
+|--------------|------------------------------------------------|
+| green        | `Stop`                                         |
+| red          | `PreInvocation`, `PostToolUse`                 |
+| yellow blink | `PreToolUse` (on `ask_question`, `run_command`)|
+
+Known limitations:
+
+- Antigravity does not have `SessionStart`, `SessionEnd`, or `Interrupt` lifecycle hooks. As a result, the startup boot animation does not play automatically, and the light does not turn off when exiting the CLI session.
+- There is no dedicated `PermissionRequest` event hook; yellow blinking is triggered via `PreToolUse` on `ask_question` and `run_command`. Commands that are already permitted will briefly flash yellow before executing.
 
 </details>
 

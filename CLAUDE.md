@@ -49,6 +49,7 @@ Each coding agent drives the lamp through its own integration. `README.md` has t
 | Claude Code | `hooks/hooks.json`                     | `.claude-plugin/marketplace.json`              |
 | Codex       | `hooks/codex-hooks.json`               | `.codex-plugin/plugin.json`, `.agents/plugins/` |
 | Opencode    | `.opencode/plugins/semaphore-hooks.js` | copied by the user                             |
+| Antigravity | `plugins/semaphore-hooks/hooks.json`   | `plugins/semaphore-hooks/`                     |
 
 `scripts/postinstall.js` reminds the user once, after a global install, to enable the plugin.
 
