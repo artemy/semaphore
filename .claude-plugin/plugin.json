@@ -5,6 +5,7 @@
   "author": { "name": "Artem Makarov" },
   "homepage": "https://github.com/artemy/semaphore",
   "repository": "https://github.com/artemy/semaphore",
+  "documentationUrl": "https://github.com/artemy/semaphore#readme",
   "license": "MIT",
   "keywords": ["hooks", "hid", "led", "traffic-light", "semaphore", "status-light"]
 }
