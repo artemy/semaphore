@@ -195,7 +195,9 @@ Known limitations:
 
 ### OpenCode
 
-Copy [`.opencode/plugins/semaphore-hooks.js`](.opencode/plugins/semaphore-hooks.js) into `~/.config/opencode/plugins/` to use it in every project, or into a project's `.opencode/plugins/` to use it in that project only. OpenCode loads it automatically on the next start.
+Requires OpenCode 2.x.
+
+Copy the [`.opencode/plugins/semaphore/`](.opencode/plugins/semaphore) directory into `~/.config/opencode/plugins/` to use it in every project, or into a project's `.opencode/plugins/` to use it in that project only. OpenCode loads it automatically on the next start.
 
 An npm package for the plugin is planned.
 
@@ -204,14 +206,14 @@ An npm package for the plugin is planned.
 
 | Light        | OpenCode events                                                                                                        |
 |--------------|------------------------------------------------------------------------------------------------------------------------|
-| green        | `session.created`, `session.idle`, `question.rejected`                                                                 |
-| red          | `message.updated` (user messages), `tool.execute.after`, `permission.replied`, `question.replied`                      |
-| yellow blink | `permission.asked`, `question.asked`                                                                                   |
-| off          | `dispose`                                                                                                              |
+| green        | `session.created`, `session.execution.succeeded`, `session.execution.failed`, `session.execution.interrupted`, `form.cancelled`, `permission.replied` (reject) |
+| red          | `session.execution.started`, `session.step.started`, `form.replied`, `permission.replied` (allow)                    |
+| yellow blink | `permission.asked`, `form.created`                                                                                   |
+| off          | TUI exit or TUI plugin unload (`tui.js`), server plugin unload (`index.js`)                                          |
 
-The `permission.*` and `question.*` events are also handled in their `v2` forms.
+Session events from subagent (child) sessions do not drive the light. A subagent's permission prompts and forms still do.
 
-The startup animation plays when OpenCode loads the plugin.
+The startup animation plays when the OpenCode service loads the plugin.
 
 </details>
 

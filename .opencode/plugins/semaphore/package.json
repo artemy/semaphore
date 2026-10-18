@@ -1,0 +1,8 @@
+{
+  "name": "semaphore-hooks",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./tui": "./tui.js"
+  }
+}
